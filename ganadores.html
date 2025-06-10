@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ganadores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="CSS/principalMestro.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Panel Maestro</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuMaestro" aria-controls="menuMaestro" aria-expanded="false" aria-label="Mostrar/Ocultar navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+           <div class="collapse navbar-collapse" id="menuMaestro">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="principalAlumnos.html">Inicio</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="JuegosAlumnos.html">Juegos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="JuegosAsignados.html">Administrador de juego</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="btnCerrarSesion">Salir</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <div class="mb-4">
+            <label for="inputID" class="form-label">Buscar estado del alumno por ID:</label>
+            <div class="input-group">
+                <input type="text" id="inputID" class="form-control" placeholder="Ej: 20201011022">
+                <button class="btn btn-primary" onclick="buscarEstado()">Buscar</button>
+            </div>
+        </div>
+        <div id="resultadoEstado"></div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="JS/cerarsesion.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="JS/ganadores.js"></script>
+</body>
+</html>

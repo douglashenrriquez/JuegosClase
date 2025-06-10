@@ -1,0 +1,25 @@
+body {
+    background-color: #f8f9fa;
+    margin: 0;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 10px;
+}
+
+/* Opcional: mejora visual para pantallas muy pequeñas */
+@media (max-width: 660px) {
+    .login-card {
+        padding: 2.5rem 2rem;
+    }
+}

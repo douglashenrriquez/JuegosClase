@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumnos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="CSS/principalMestro.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Panel Maestro</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuMaestro">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="menuMaestro">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="principalMaestro.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="Alumnos.html">Alumnos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="clases.html">Clases</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Juegos.html">Juegos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" id="btnCerrarSesion">Salir</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h3>Registrar Alumno</h3>
+        <form id="formAlumno">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="id" class="form-label">ID (código único)</label>
+                    <input type="text" class="form-control" id="id" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="nombre" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="id_clase" class="form-label">Clase</label>
+                    <select id="id_clase" class="form-select" required>
+                        <option selected disabled value="">Seleccionar clase</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="puntos" class="form-label">Puntos</label>
+                    <input type="number" class="form-control" id="puntos" value="0" min="0">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success mt-3">Registrar Alumno</button>
+        </form>
+
+        <hr class="my-5">
+
+        <h3>Listado de Alumnos</h3>
+        <div class="table-responsive">
+            <table id="tablaAlumnos" class="table table-striped table-bordered mt-3">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Contraseña</th>
+                        <th>Clase</th>
+                        <th>Puntos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- JS insertará aquí -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="JS/cerarsesion.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="JS/alumnos.js"></script>
+</body>
+</html>
