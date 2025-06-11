@@ -47,11 +47,10 @@ class LoginManager:
             self.connection.close()
 
     def login_unificado(self, numero, password):
-        """Busca primero en administradores, luego en alumnos"""
         if self.connection:
             cursor = self.connection.cursor(dictionary=True)
 
-            # Buscar en administradores
+            # Buscar en administradores por 'numero'
             query_admin = "SELECT * FROM administradores WHERE numero = %s AND password = %s"
             cursor.execute(query_admin, (numero, password))
             admin = cursor.fetchone()
@@ -59,7 +58,7 @@ class LoginManager:
                 cursor.close()
                 return {"rol": "administrador", "datos": admin}
 
-            # Buscar en alumnos
+            # Buscar en alumnos por 'id' (usando 'numero' como id)
             query_alumno = "SELECT * FROM alumnos WHERE id = %s AND password = %s"
             cursor.execute(query_alumno, (numero, password))
             alumno = cursor.fetchone()
@@ -67,6 +66,9 @@ class LoginManager:
 
             if alumno:
                 return {"rol": "alumno", "datos": alumno}
+
+        return None
+
 
         return None
     def obtener_alumnos(self):

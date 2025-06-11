@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const idClase = usuario.id_clase;
+    console.log('usuario:', usuario);
+    console.log('idClase:', idClase);
 
     if (!idClase) {
         alert("No se encontró la clase del alumno.");

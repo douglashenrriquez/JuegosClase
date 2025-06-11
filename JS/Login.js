@@ -4,6 +4,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const loginForm = document.querySelector('.login-card form');
 
+    // Función para mostrar el modal
+    function mostrarModal(mensaje, titulo = 'Mensaje') {
+        document.getElementById('mensajeModalLabel').textContent = titulo;
+        document.getElementById('modalMensajeTexto').textContent = mensaje;
+
+        const modal = new bootstrap.Modal(document.getElementById('mensajeModal'));
+        modal.show();
+    }
+
     loginForm.addEventListener('submit', async function (e) {
         e.preventDefault();
 
@@ -22,27 +31,27 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await response.json();
 
             if (data.success) {
-                alert('¡Login exitoso!');
+                mostrarModal('¡Login exitoso!', 'Bienvenido');
 
-                // Guardar todo el objeto como "usuario"
                 localStorage.setItem('usuario', JSON.stringify(data));
-                localStorage.setItem('rol', data.rol); // Por si lo usas luego
+                localStorage.setItem('rol', data.rol);
 
-                // Redirigir según rol
-                if (data.rol === 'administrador') {
-                    window.location.href = 'principalMaestro.html';
-                } else if (data.rol === 'alumno') {
-                    window.location.href = 'principalAlumnos.html';
-                } else {
-                    alert('Rol desconocido');
-                }
-
+                // Redirigir después de cerrar el modal
+                setTimeout(() => {
+                    if (data.rol === 'administrador') {
+                        window.location.href = 'principalMaestro.html';
+                    } else if (data.rol === 'alumno') {
+                        window.location.href = 'principalAlumnos.html';
+                    } else {
+                        mostrarModal('Rol desconocido', 'Error');
+                    }
+                }, 1500); // 1.5 segundos después
             } else {
-                alert('Error: ' + (data.message || 'Credenciales incorrectas'));
+                mostrarModal(data.message || 'Credenciales incorrectas', 'Error');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error al conectar con el servidor');
+            mostrarModal('Error al conectar con el servidor', 'Error');
         }
     });
 });

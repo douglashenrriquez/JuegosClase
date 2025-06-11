@@ -46,11 +46,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(res => res.json())
                 .then(res => {
                     if (res.success) {
-                        alert("Alumno actualizado");
+                         mostrarModal(isEditing ? "Alumno actualizado" : "Alumno registrado correctamente", "Éxito");
                         resetFormulario();
                         cargarAlumnos();
                     } else {
-                        alert("Error al actualizar alumno");
+                         mostrarModal("Error al " + (isEditing ? "actualizar" : "registrar") + " alumno", "Error");
                     }
                 });
         } else {
@@ -63,11 +63,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(res => res.json())
                 .then(res => {
                     if (res.success) {
-                        alert("Alumno registrado correctamente");
+                        mostrarModal("Alumno registrado correctamente", "Éxito");
                         resetFormulario();
                         cargarAlumnos();
                     } else {
-                        alert("Error al registrar alumno");
+                        mostrarModal("ERROR", "Éxito");
                     }
                 });
         }
@@ -99,20 +99,21 @@ function cargarAlumnos() {
 
 // ✅ Eliminar un alumno
 function eliminarAlumno(id) {
-    if (confirm("¿Estás seguro de eliminar este alumno?")) {
-        fetch(`http://localhost:5000/api/alumnos/${id}`, {
-            method: "DELETE"
-        })
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    alert("Alumno eliminado");
-                    cargarAlumnos();
-                } else {
-                    alert("No se pudo eliminar el alumno");
-                }
-            });
-    }
+    mostrarConfirmacion("¿Estás seguro de eliminar este alumno?", () => {
+    fetch(`http://localhost:5000/api/alumnos/${id}`, {
+        method: "DELETE"
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            mostrarModal("Alumno eliminado", "Éxito");
+            cargarAlumnos();
+        } else {
+            mostrarModal("No se pudo eliminar el alumno", "Error");
+        }
+    });
+});
+
 }
 
 // ✅ Editar un alumno
@@ -148,4 +149,23 @@ function resetFormulario() {
     btn.classList.remove("btn-primary");
     btn.classList.add("btn-success");
     btn.dataset.editing = "false";
+}
+// Mostrar mensaje en modal
+function mostrarModal(mensaje, titulo = "Mensaje") {
+    document.getElementById("mensajeModalLabel").textContent = titulo;
+    document.getElementById("modalMensajeTexto").textContent = mensaje;
+    new bootstrap.Modal(document.getElementById("mensajeModal")).show();
+}
+
+// Mostrar confirmación y ejecutar callback si acepta
+function mostrarConfirmacion(mensaje, onConfirmar) {
+    document.getElementById("modalConfirmacionTexto").textContent = mensaje;
+    const modal = new bootstrap.Modal(document.getElementById("confirmacionModal"));
+    modal.show();
+
+    const btn = document.getElementById("btnConfirmarAccion");
+    btn.onclick = () => {
+        modal.hide();
+        onConfirmar();
+    };
 }

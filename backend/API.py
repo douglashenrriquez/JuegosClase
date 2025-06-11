@@ -218,13 +218,13 @@ def crear_juego():
     vida = data.get('vida')
     puntos = data.get('puntos')  
     id_clase = data.get('id_clase')
+    creadorjuego = data.get('creadorjuego')  # <-- ¡AGREGA ESTO!
 
-    if nombre and reglas and vida is not None and puntos is not None and id_clase is not None:
-        if juego_manager.crear_juego(nombre, reglas, vida, puntos, id_clase):
+    if nombre and reglas and vida is not None and puntos is not None and id_clase is not None and creadorjuego is not None:
+        if juego_manager.crear_juego(nombre, reglas, vida, puntos, id_clase, creadorjuego):
             return jsonify({"success": True})
-    
-    return jsonify({"success": False, "message": "Error al crear juego"}), 400
 
+    return jsonify({"success": False, "message": "Error al crear juego"}), 400
 
 
 #PUT
@@ -236,13 +236,16 @@ def actualizar_juego(id):
     vida = data.get('vida')
     puntos = data.get('puntos')
     id_clase = data.get('id_clase')
-    id_alumno = data.get('id_alumno')  
+    creadorjuego = data.get('creadorjuego')  # ✅ importante
 
-    if nombre and reglas and vida is not None and puntos is not None and id_clase is not None:
-        if juego_manager.actualizar_juego(id, nombre, reglas, vida, puntos, id_clase, id_alumno):  
-            return jsonify({"success": True})
-    
-    return jsonify({"success": False, "message": "Error al actualizar juego"}), 400
+    if not all([nombre, reglas, vida is not None, puntos is not None, id_clase, creadorjuego]):
+        return jsonify({"success": False, "message": "Faltan datos"}), 400
+
+    actualizado = juego_manager.actualizar_juego(id, nombre, reglas, vida, puntos, id_clase, creadorjuego)
+    if actualizado:
+        return jsonify({"success": True})
+    else:
+        return jsonify({"success": False, "message": "No se pudo actualizar"}), 500
 
 #DELETE
 @app.route('/api/juegos/<int:id>', methods=['DELETE'])
@@ -295,6 +298,7 @@ def obtener_estado_juego(id_alumno):
         return jsonify({"success": True, "estado": estado})
     else:
         return jsonify({"success": False, "message": "El alumno no está jugando ningún juego"}), 404
+    
 
 @app.route('/api/historial_juegos/<string:id_alumno>', methods=['GET'])
 def obtener_historial_juegos(id_alumno):
