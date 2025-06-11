@@ -73,13 +73,17 @@ async function mostrarJuegos(juegos) {
     for (const juego of juegos) {
         const puedeJugarResp = await fetch(`http://localhost:5000/api/juegos/puede_jugar/${usuario.id}/${juego.id}`);
         const puedeJugarData = await puedeJugarResp.json();
+
         const puedeJugar = puedeJugarData.puede_jugar;
+        const vidasUsadas = puedeJugarData.vidas_usadas;
+        const vidasTotales = puedeJugarData.vidas_totales;
+        const vidasRestantes = vidasTotales - vidasUsadas;
+
+        const corazones = '❤️ '.repeat(vidasRestantes) + '🖤 '.repeat(vidasUsadas);
 
         const card = document.createElement('div');
         card.className = 'card mb-3';
         card.style.transition = '0.3s';
-
-        const corazones = '❤️ '.repeat(juego.vida).trim();
 
         card.innerHTML = `
             <div class="card-body">

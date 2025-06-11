@@ -199,7 +199,11 @@ def obtener_juegos_por_creador(creadorjuego):
 def api_puede_jugar(id_alumno, id_juego):
     try:
         resultado = juego_manager.puede_jugar(id_alumno, id_juego)
-        return jsonify({"puede_jugar": resultado})
+        return jsonify({
+            "puede_jugar": resultado['puede_jugar'],
+            "vidas_usadas": resultado['vidas_usadas'],
+            "vidas_totales": resultado['vidas_totales']
+        })
     except Exception as e:
         print("Error en puede_jugar:", e)
         return jsonify({"success": False, "error": str(e)}), 500

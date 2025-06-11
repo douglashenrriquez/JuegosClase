@@ -109,26 +109,27 @@ class JuegoManager:
         return []
 
     def puede_jugar(self, id_alumno, id_juego):
-        if self.connection:
-            cursor = self.connection.cursor()
+        connection = self.crear_conexion()
+        if connection:
+            cursor = connection.cursor(dictionary=True)
 
-            # Cuántas veces ha jugado este juego el alumno
-            query_ganadas = """
-                SELECT COUNT(*) FROM estado_juego
-                WHERE id_alumno = %s AND id_juego = %s AND estado = 'finalizado'
+            query_jugadas = """
+                SELECT COUNT(*) AS jugadas FROM estado_juego
+                WHERE id_alumno = %s AND id_juego = %s
             """
-            cursor.execute(query_ganadas, (id_alumno, id_juego))
-            result = cursor.fetchone()
-            veces_jugado = result[0] if result else 0
+            cursor.execute(query_jugadas, (id_alumno, id_juego))
+            veces_jugado = cursor.fetchone()['jugadas']
 
-            # Cuántas vidas tiene el juego
             query_vida = "SELECT vida FROM juegos WHERE id = %s"
             cursor.execute(query_vida, (id_juego,))
-            result = cursor.fetchone()
-            vida = result[0] if result else 0
+            vida = cursor.fetchone()['vida']
 
             cursor.close()
+            connection.close()  # << MUY IMPORTANTE
 
-            return veces_jugado < vida  # True o False
-        return False
+            return {
+                "puede_jugar": veces_jugado < vida,
+                "vidas_usadas": veces_jugado,
+                "vidas_totales": vida
+            }
 
