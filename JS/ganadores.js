@@ -18,7 +18,10 @@ function buscarEstado() {
                     <div class="card mt-4">
                         <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">${estado.juego}</h5>
-                            <button id="btnGanar" class="btn btn-warning btn-sm">🏆 Ganar</button>
+                            <div>
+                                <button id="btnGanar" class="btn btn-warning btn-sm me-2">🏆 Ganar</button>
+                                <button id="btnPerder" class="btn btn-danger btn-sm">💀 Perder</button>
+                            </div>
                         </div>
                         <div class="card-body">
                             <p><strong>ID del Estado:</strong> ${estado.id}</p>
@@ -35,32 +38,70 @@ function buscarEstado() {
                 // Acción del botón Ganar
                 document.getElementById('btnGanar').addEventListener('click', async () => {
                     if (!confirm("¿Estás seguro de que el alumno ha ganado el juego?")) return;
-                            await fetch('http://localhost:5000/api/alumnos/sumar-puntos', {
+
+                    await fetch('http://localhost:5000/api/alumnos/sumar-puntos', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id_alumno: idAlumno,
+                            puntos: estado.puntos
+                        })
+                    });
+
+                    try {
+                        const response = await fetch('http://localhost:5000/api/estado_juego/finalizar', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                id_alumno: idAlumno,
-                                puntos: estado.puntos
+                                id_estado: estado.id
                             })
                         });
-
-                    try {
-                     const response = await fetch('http://localhost:5000/api/estado_juego/finalizar', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ 
-                                    id_estado: estado.id  // Usa el ID único del estado del juego
-                                })
-                            });
 
                         if (!response.ok) throw new Error("Error al finalizar el juego");
 
                         alert("El juego fue finalizado. El alumno ahora puede elegir otro juego.");
-                        buscarEstado(); // recargar para mostrar que ya no está jugando
+                        buscarEstado();
+                    } catch (error) {
+                        console.error("Error al finalizar el juego:", error);
+                        alert("No se pudo finalizar el juego.");
+                    }
+                });
+
+                // Acción del botón Perder
+                document.getElementById('btnPerder').addEventListener('click', async () => {
+                    if (!confirm("¿Estás seguro de que el alumno ha perdido el juego?")) return;
+
+                    // Restar vida
+                    await fetch('http://localhost:5000/api/alumnos/perder', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id_alumno: idAlumno,
+                            vida: 1 // Vida que se va a restar
+                        })
+                    });
+
+                    try {
+                        const response = await fetch('http://localhost:5000/api/estado_juego/finalizar', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                id_estado: estado.id
+                            })
+                        });
+
+                        if (!response.ok) throw new Error("Error al finalizar el juego");
+
+                        alert("El juego fue finalizado. El alumno ahora puede elegir otro juego.");
+                        buscarEstado();
                     } catch (error) {
                         console.error("Error al finalizar el juego:", error);
                         alert("No se pudo finalizar el juego.");

@@ -143,6 +143,30 @@ def sumar_puntos_alumno():
     
     return jsonify({"success": False, "error": "Alumno no encontrado"}), 404
 
+@app.route('/api/alumnos/perder', methods=['POST'])
+def alumno_perdio():
+    data = request.get_json()
+    id_alumno = data.get("id_alumno")
+    vida_perdida = data.get("vida", 1)  # Puedes personalizar la cantidad de vida que pierde
+
+    alumnos = alumno_manager.obtener_alumnos()
+    alumno = next((a for a in alumnos if a['id'] == id_alumno), None)
+
+    if alumno:
+        nueva_vida = max(alumno['vida'] - vida_perdida, 0)  # Evitar que quede en negativo
+        actualizado = alumno_manager.actualizar_alumno(
+            id_alumno,
+            alumno['nombre'],
+            alumno['password'],
+            alumno['id_clase'],
+            alumno['puntos'],  # No se suman puntos
+            nueva_vida
+        )
+        return jsonify({"success": actualizado})
+
+    return jsonify({"success": False, "error": "Alumno no encontrado"}), 404
+
+
     
 #PUT
 @app.route('/api/alumnos/<string:id>', methods=['PUT'])

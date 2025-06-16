@@ -48,6 +48,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
         console.error("Error al verificar estado del juego:", error);
     }
+
+    document.getElementById('btnRecargar').addEventListener('click', () => {
+    location.reload(); 
+    });
 });
 
 async function mostrarJuegos(juegos) {
