@@ -8,9 +8,9 @@ class AlumnoManager:
     def crear_conexion(self):
         try:
             connection = mysql.connector.connect(
-                host="localhost",
-                user="root",
-                password="",
+                host="srv871982.hstgr.cloud",
+                user="douglasadmin",
+                password="Douglas1405.18",
                 database="fisica"
             )
             return connection

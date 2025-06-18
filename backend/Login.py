@@ -1,101 +1,82 @@
 import mysql.connector
 from mysql.connector import Error
 
-class LoginManager:
-    def __init__(self):
-        self.connection = self.create_connection()
-    
-    def create_connection(self):
-        """Crea la conexión a la BD 'fisica'."""
+# =======================
+# CONEXIÓN A LA BASE DE DATOS
+# =======================
+def get_connection():
+    try:
+        return mysql.connector.connect(
+            host="srv871982.hstgr.cloud",
+            user="douglasadmin",
+            password="Douglas1405.18",
+            database="fisica",
+            autocommit=True
+        )
+    except Error as e:
+        print(f"Error al conectar a MySQL: {e}")
+        return None
+
+# =======================
+# FUNCIONES PARA ADMINISTRADORES
+# =======================
+
+def crear_administrador(numero, password):
+    conn = get_connection()
+    if conn:
         try:
-            connection = mysql.connector.connect(
-                host="localhost",
-                user="root",  
-                password="",
-                database="fisica"
-            )
-            return connection
-        except Error as e:
-            print(f"Error al conectar a MySQL: {e}")
-            return None
-    
-    def crear_administrador(self, numero, password):
-        """Crea un nuevo administrador."""
-        if self.connection:
-            cursor = self.connection.cursor()
+            cursor = conn.cursor()
             query = "INSERT INTO administradores (numero, password) VALUES (%s, %s)"
             cursor.execute(query, (numero, password))
-            self.connection.commit()
+            conn.commit()
             cursor.close()
+            conn.close()
             return True
-        return False
+        except Error as e:
+            print(f"Error al crear administrador: {e}")
+    return False
 
-    def obtener_administradores(self):
-        """Obtiene todos los administradores."""
-        if self.connection:
-            cursor = self.connection.cursor(dictionary=True)
-            query = "SELECT * FROM administradores"
-            cursor.execute(query)
-            admins = cursor.fetchall()
-            cursor.close()
-            return admins
-        return []
+def obtener_administradores():
+    conn = get_connection()
+    if conn:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM administradores")
+        resultados = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return resultados
+    return []
 
-    def cerrar_conexion(self):
-        """Cierra la conexión a la BD."""
-        if self.connection:
-            self.connection.close()
+def login_administrador(numero, password):
+    conn = get_connection()
+    if conn:
+        cursor = conn.cursor(dictionary=True)
+        query = "SELECT * FROM administradores WHERE numero = %s AND password = %s"
+        cursor.execute(query, (numero, password))
+        admin = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return admin
+    return None
 
-    def login_unificado(self, numero, password):
-        if self.connection:
-            cursor = self.connection.cursor(dictionary=True)
+# =======================
+# FUNCIONES PARA ALUMNOS
+# =======================
 
-            # Buscar en administradores por 'numero'
-            query_admin = "SELECT * FROM administradores WHERE numero = %s AND password = %s"
-            cursor.execute(query_admin, (numero, password))
-            admin = cursor.fetchone()
-            if admin:
-                cursor.close()
-                return {"rol": "administrador", "datos": admin}
+def login_alumno(id_alumno, password):
+    conn = get_connection()
+    if conn:
+        cursor = conn.cursor(dictionary=True)
+        query = "SELECT * FROM alumnos WHERE BINARY id = %s AND BINARY password = %s"
+        cursor.execute(query, (id_alumno, password))
+        alumno = cursor.fetchone()
+        cursor.close()
+        conn.close()
 
-            # Buscar en alumnos por 'id' (usando 'numero' como id)
-            query_alumno = "SELECT * FROM alumnos WHERE id = %s AND password = %s"
-            cursor.execute(query_alumno, (numero, password))
-            alumno = cursor.fetchone()
-            cursor.close()
-
-            if alumno:
-                return {"rol": "alumno", "datos": alumno}
-
-        return None
-
-
-        return None
-    def obtener_alumnos(self):
-        
-        if self.connection:
-            cursor = self.connection.cursor(dictionary=True)
-            query = "SELECT * FROM alumnos"
-            cursor.execute(query)
-            admins = cursor.fetchall()
-            cursor.close()
-            return admins
-        return []
-
-    def obtener_juegos_por_creador(self, creadorjuego):
-        if self.connection:
-            cursor = self.connection.cursor(dictionary=True)
-            query = """
-                SELECT juegos.id, juegos.nombre, juegos.reglas, juegos.vida, juegos.puntos,
-                    juegos.id_clase, clase.nombre AS nombre_clase,
-                    juegos.creadorjuego, alumnos.nombre AS nombre_creador
-                FROM juegos
-                LEFT JOIN clase ON juegos.id_clase = clase.id_clase
-                LEFT JOIN alumnos ON juegos.creadorjuego = alumnos.id
-                WHERE juegos.creadorjuego = %s
-            """
-            cursor.execute(query, (creadorjuego,))
-            juegos = cursor.fetchall()
-            cursor.close()
-            return juegos
-        return []
+        if alumno:
+            return {
+                "id": alumno["id"],
+                "nombre": alumno["nombre"],
+                "id_clase": alumno["id_clase"]
+            }
+    return None

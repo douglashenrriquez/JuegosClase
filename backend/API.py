@@ -1,13 +1,14 @@
 from flask import Flask, request, jsonify
-from Login import LoginManager
 from flask_cors import CORS
 from clase import ClaseManager 
 from alumno import AlumnoManager
 from juegos import JuegoManager
 from estado_juego import EstadoJuegoManager
+import Login
 
 app = Flask(__name__)
-login_manager = LoginManager()
+CORS(app)
+
 clase_manager = ClaseManager()
 alumno_manager = AlumnoManager()
 juego_manager = JuegoManager()
@@ -17,40 +18,72 @@ manager = EstadoJuegoManager()
 #--------------------------------------------------------------------------------------
 #LOGIN 
 
-#GET
+# =====================
+# ENDPOINTS ADMINISTRADORES
+# =====================
+
 @app.route('/api/administradores', methods=['GET'])
 def get_administradores():
-    admins = login_manager.obtener_administradores()
+    admins = Login.obtener_administradores()
     return jsonify(admins)
 
-#POST
 @app.route('/api/administradores', methods=['POST'])
-def crear_administrador():
-    data = request.get_json()
-    numero = data.get('numero')
-    password = data.get('password')
-    
-    if login_manager.crear_administrador(numero, password):
-        return jsonify({"success": True})
-    else:
-        return jsonify({"success": False}), 500
-    
-@app.route('/api/login', methods=['POST'])
-def login():
+def crear_admin():
     data = request.get_json()
     numero = data.get('numero')
     password = data.get('password')
 
-    resultado = login_manager.login_unificado(numero, password)
-    
+    if not numero or not password:
+        return jsonify({"success": False, "message": "Faltan campos"}), 400
+
+    if Login.crear_administrador(numero, password):
+        return jsonify({"success": True}), 201
+    else:
+        return jsonify({"success": False, "message": "Error al crear"}), 500
+
+@app.route('/api/login_administrador', methods=['POST'])
+def login_admin():
+    data = request.get_json()
+    numero = data.get('numero')
+    password = data.get('password')
+
+    if not numero or not password:
+        return jsonify({"success": False, "message": "Faltan campos"}), 400
+
+    resultado = Login.login_administrador(numero, password)
+
     if resultado:
         return jsonify({
             "success": True,
-            "rol": resultado["rol"],
-            **resultado["datos"]
-        })
+            "rol": "administrador",
+            "datos": resultado
+        }), 200
     else:
-        return jsonify({"success": False, "message": "Credenciales inválidas"}), 401
+        return jsonify({"success": False, "message": "Número o contraseña incorrectos"}), 401
+
+# =====================
+# ENDPOINTS ALUMNOS
+# =====================
+
+@app.route('/api/login_alumno', methods=['POST'])
+def login_alum():
+    data = request.get_json()
+    id_alumno = data.get('id')
+    password = data.get('password')
+
+    if not id_alumno or not password:
+        return jsonify({"success": False, "message": "Faltan campos"}), 400
+
+    resultado = Login.login_alumno(id_alumno, password)
+
+    if resultado:
+        return jsonify({
+            "success": True,
+            "rol": "alumno",
+            "datos": resultado
+        }), 200
+    else:
+        return jsonify({"success": False, "message": "ID o contraseña incorrectos"}), 401
 
 #--------------------------------------------------------------------------------------
 #CLASES 

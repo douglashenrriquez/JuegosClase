@@ -73,17 +73,16 @@ function buscarEstado() {
 
                 // Acción del botón Perder
                 document.getElementById('btnPerder').addEventListener('click', async () => {
-                    if (!confirm("¿Estás seguro de que el alumno ha perdido el juego?")) return;
+                    if (!confirm("¿Estás seguro de que el alumno ha ganado el juego?")) return;
 
-                    // Restar vida
-                    await fetch('http://localhost:5000/api/alumnos/perder', {
+                    await fetch('http://localhost:5000/api/alumnos/sumar-puntos', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             id_alumno: idAlumno,
-                            vida: 1 // Vida que se va a restar
+                            puntos: 0
                         })
                     });
 
@@ -107,7 +106,6 @@ function buscarEstado() {
                         alert("No se pudo finalizar el juego.");
                     }
                 });
-
             } else {
                 resultadoDiv.innerHTML = `<div class="alert alert-info">El alumno no está jugando ningún juego actualmente.</div>`;
             }
