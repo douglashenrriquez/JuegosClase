@@ -7,7 +7,6 @@ function buscarEstado() {
         resultadoDiv.innerHTML = `<div class="alert alert-warning">Por favor, ingresa un ID.</div>`;
         return;
     }
-
     fetch(`http://localhost:5000/api/estado_juego/${idAlumno}`)
         .then(response => response.json())
         .then(data => {
@@ -37,74 +36,97 @@ function buscarEstado() {
 
                 // Acción del botón Ganar
                 document.getElementById('btnGanar').addEventListener('click', async () => {
-                    if (!confirm("¿Estás seguro de que el alumno ha ganado el juego?")) return;
-
-                    await fetch('http://localhost:5000/api/alumnos/sumar-puntos', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            id_alumno: idAlumno,
-                            puntos: estado.puntos
-                        })
-                    });
-
-                    try {
-                        const response = await fetch('http://localhost:5000/api/estado_juego/finalizar', {
+                    document.querySelector('.modal-body').textContent = "¿Estás seguro de que el alumno ha ganado el juego?";
+                    $('#modalConfirmacion').modal('show');  
+                    document.getElementById('btnConfirmar').onclick = async () => {
+                        $('#modalConfirmacion').modal('hide');
+                        
+                        await fetch('http://localhost:5000/api/alumnos/sumar-puntos', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                id_estado: estado.id
+                                id_alumno: idAlumno,
+                                puntos: estado.puntos
                             })
                         });
 
-                        if (!response.ok) throw new Error("Error al finalizar el juego");
+                        try {
+                            const response = await fetch('http://localhost:5000/api/estado_juego/finalizar', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    id_estado: estado.id
+                                })
+                            });
 
-                        alert("El juego fue finalizado. El alumno ahora puede elegir otro juego.");
-                        buscarEstado();
-                    } catch (error) {
-                        console.error("Error al finalizar el juego:", error);
-                        alert("No se pudo finalizar el juego.");
-                    }
+                            if (!response.ok) throw new Error("Error al finalizar el juego");
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Juego Finalizado',
+                                text: 'El alumno ahora puede elegir otro juego.'
+                            });
+
+                            buscarEstado();
+                        } catch (error) {
+                            console.error("Error al finalizar el juego:", error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'No se pudo finalizar el juego.'
+                            });
+                        }
+                    };
                 });
-
                 // Acción del botón Perder
                 document.getElementById('btnPerder').addEventListener('click', async () => {
-                    if (!confirm("¿Estás seguro de que el alumno ha ganado el juego?")) return;
-
-                    await fetch('http://localhost:5000/api/alumnos/sumar-puntos', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            id_alumno: idAlumno,
-                            puntos: 0
-                        })
-                    });
-
-                    try {
-                        const response = await fetch('http://localhost:5000/api/estado_juego/finalizar', {
+                    document.querySelector('.modal-body').textContent = "¿Estás seguro de que el alumno ha perdido el juego?";
+                    $('#modalConfirmacion').modal('show');  
+                    document.getElementById('btnConfirmar').onclick = async () => {
+                        $('#modalConfirmacion').modal('hide');
+                        
+                        await fetch('http://localhost:5000/api/alumnos/sumar-puntos', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                id_estado: estado.id
+                                id_alumno: idAlumno,
+                                puntos: 0 
                             })
                         });
 
-                        if (!response.ok) throw new Error("Error al finalizar el juego");
+                        try {
+                            const response = await fetch('http://localhost:5000/api/estado_juego/finalizar', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    id_estado: estado.id
+                                })
+                            });
 
-                        alert("El juego fue finalizado. El alumno ahora puede elegir otro juego.");
-                        buscarEstado();
-                    } catch (error) {
-                        console.error("Error al finalizar el juego:", error);
-                        alert("No se pudo finalizar el juego.");
-                    }
+                            if (!response.ok) throw new Error("Error al finalizar el juego");
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Juego Perdido',
+                                text: 'El alumno ha perdido el juego.'
+                            });
+
+                            buscarEstado();
+                        } catch (error) {
+                            console.error("Error al finalizar el juego:", error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'No se pudo finalizar el juego.'
+                            });
+                        }
+                    };
                 });
             } else {
                 resultadoDiv.innerHTML = `<div class="alert alert-info">El alumno no está jugando ningún juego actualmente.</div>`;
