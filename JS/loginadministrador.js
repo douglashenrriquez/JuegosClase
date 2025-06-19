@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const password = document.getElementById('password').value;
 
         try {
-            const response = await fetch('http://localhost:5000/api/login_administrador', {
+            const response = await fetch('http://srv871982.hstgr.cloud:5001/api/login_administrador', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
