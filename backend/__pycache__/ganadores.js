@@ -7,7 +7,7 @@ function buscarEstado() {
         resultadoDiv.innerHTML = `<div class="alert alert-warning">Por favor, ingresa un ID.</div>`;
         return;
     }
-    fetch(`http://localhost:5000/api/estado_juego/${idAlumno}`)
+    fetch(`http://srv871982.hstgr.cloud:5001/api/estado_juego/${idAlumno}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -33,18 +33,19 @@ function buscarEstado() {
                 `;
 
                 resultadoDiv.innerHTML = cardHTML;
+
                 // Acción del botón Ganar
                 document.getElementById('btnGanar').addEventListener('click', async () => {
                     document.querySelector('.modal-body').textContent = "¿Estás seguro de que el alumno ha ganado el juego?";
-                    const modal = new bootstrap.Modal(document.getElementById('modalConfirmacion'));
-                    modal.show();
-
+                    $('#modalConfirmacion').modal('show');  
                     document.getElementById('btnConfirmar').onclick = async () => {
-                        modal.hide();
-
+                        $('#modalConfirmacion').modal('hide');
+                        
                         await fetch('http://srv871982.hstgr.cloud:5001/api/alumnos/sumar-puntos', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
                             body: JSON.stringify({
                                 id_alumno: idAlumno,
                                 puntos: estado.puntos
@@ -54,12 +55,15 @@ function buscarEstado() {
                         try {
                             const response = await fetch('http://srv871982.hstgr.cloud:5001/api/estado_juego/finalizar', {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ id_estado: estado.id })
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    id_estado: estado.id
+                                })
                             });
 
                             if (!response.ok) throw new Error("Error al finalizar el juego");
-
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Juego Finalizado',
@@ -84,7 +88,7 @@ function buscarEstado() {
                     document.getElementById('btnConfirmar').onclick = async () => {
                         $('#modalConfirmacion').modal('hide');
                         
-                        await fetch('http://localhost:5000/api/alumnos/sumar-puntos', {
+                        await fetch('http://srv871982.hstgr.cloud:5001/api/alumnos/sumar-puntos', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -96,7 +100,7 @@ function buscarEstado() {
                         });
 
                         try {
-                            const response = await fetch('http://localhost:5000/api/estado_juego/finalizar', {
+                            const response = await fetch('http://srv871982.hstgr.cloud:5001/api/estado_juego/finalizar', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'

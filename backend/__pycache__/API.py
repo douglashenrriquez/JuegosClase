@@ -1,14 +1,18 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from alumno import AlumnoManager
+from juegos import JuegoManager
+from estado_juego import EstadoJuegoManager
 import Login
 import clase
-import juegos
-import alumno
-import estado_juego
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://srv871982.hstgr.cloud"}})
 
+alumno_manager = AlumnoManager()
+juego_manager = JuegoManager()
+estado_juego_manager = EstadoJuegoManager()
+manager = EstadoJuegoManager()
 
 #--------------------------------------------------------------------------------------
 #LOGIN 
@@ -117,13 +121,13 @@ def eliminar_clase_route(id_clase):
 
     
 #--------------------------------------------------------------------------------------
-# ALUMNOS
+#ALUMNOS
 
-# GET
+#GET
 @app.route('/api/alumnos', methods=['GET'])
 def get_alumnos():
     try:
-        alumnos = alumno.obtener_alumnos()
+        alumnos = alumno_manager.obtener_alumnos()
         return jsonify(alumnos), 200
     except Exception as e:
         print("[ERROR] Fallo en /api/alumnos:", e)
@@ -131,14 +135,14 @@ def get_alumnos():
 
 @app.route('/api/alumnos/clase/<int:id_clase>', methods=['GET'])
 def get_alumnos_por_clase(id_clase):
-    alumnos = alumno.obtener_alumnos_por_clase(id_clase)
+    alumnos = alumno_manager.obtener_alumnos_por_clase(id_clase)
     return jsonify(alumnos)
 
-# POST
+#POST
 @app.route('/api/alumnos', methods=['POST'])
 def crear_alumno():
     data = request.get_json()
-    if alumno.crear_alumno(
+    if alumno_manager.crear_alumno(
         data.get('id'),
         data.get('nombre'),
         data.get('password'),
@@ -148,23 +152,23 @@ def crear_alumno():
         return jsonify({"success": True})
     else:
         return jsonify({"success": False}), 400
-
+    
 @app.route('/api/alumnos/sumar-puntos', methods=['POST'])
 def sumar_puntos_alumno():
     data = request.get_json()
     id_alumno = data.get("id_alumno")
     puntos_extra = data.get("puntos")
 
-    alumnos = alumno.obtener_alumnos()
-    alumno_encontrado = next((a for a in alumnos if a['id'] == id_alumno), None)
+    alumnos = alumno_manager.obtener_alumnos()
+    alumno = next((a for a in alumnos if a['id'] == id_alumno), None)
 
-    if alumno_encontrado:
-        nuevos_puntos = alumno_encontrado['puntos'] + puntos_extra
-        actualizado = alumno.actualizar_alumno(
+    if alumno:
+        nuevos_puntos = alumno['puntos'] + puntos_extra
+        actualizado = alumno_manager.actualizar_alumno(
             id_alumno,
-            alumno_encontrado['nombre'],
-            alumno_encontrado['password'],
-            alumno_encontrado['id_clase'],
+            alumno['nombre'],
+            alumno['password'],
+            alumno['id_clase'],
             nuevos_puntos
         )
         return jsonify({"success": actualizado})
@@ -175,30 +179,32 @@ def sumar_puntos_alumno():
 def alumno_perdio():
     data = request.get_json()
     id_alumno = data.get("id_alumno")
-    vida_perdida = data.get("vida", 1)
+    vida_perdida = data.get("vida", 1)  # Puedes personalizar la cantidad de vida que pierde
 
-    alumnos = alumno.obtener_alumnos()
-    alumno_encontrado = next((a for a in alumnos if a['id'] == id_alumno), None)
+    alumnos = alumno_manager.obtener_alumnos()
+    alumno = next((a for a in alumnos if a['id'] == id_alumno), None)
 
-    if alumno_encontrado and 'vida' in alumno_encontrado:
-        nueva_vida = max(alumno_encontrado['vida'] - vida_perdida, 0)
-        actualizado = alumno.actualizar_alumno(
+    if alumno:
+        nueva_vida = max(alumno['vida'] - vida_perdida, 0)  # Evitar que quede en negativo
+        actualizado = alumno_manager.actualizar_alumno(
             id_alumno,
-            alumno_encontrado['nombre'],
-            alumno_encontrado['password'],
-            alumno_encontrado['id_clase'],
-            alumno_encontrado['puntos']  # Los puntos no cambian aquí
-            # OJO: debes actualizar tu base de datos si quieres manejar el campo `vida`
+            alumno['nombre'],
+            alumno['password'],
+            alumno['id_clase'],
+            alumno['puntos'],  # No se suman puntos
+            nueva_vida
         )
         return jsonify({"success": actualizado})
 
-    return jsonify({"success": False, "error": "Alumno no encontrado o sin vida definida"}), 404
+    return jsonify({"success": False, "error": "Alumno no encontrado"}), 404
 
-# PUT
+
+    
+#PUT
 @app.route('/api/alumnos/<string:id>', methods=['PUT'])
 def actualizar_alumno(id):
     data = request.get_json()
-    if alumno.actualizar_alumno(
+    if alumno_manager.actualizar_alumno(
         id,
         data.get('nombre'),
         data.get('password'),
@@ -208,34 +214,30 @@ def actualizar_alumno(id):
         return jsonify({"success": True})
     else:
         return jsonify({"success": False}), 400
+    
+#DELETE
 
-# DELETE
 @app.route('/api/alumnos/<string:id>', methods=['DELETE'])
 def eliminar_alumno(id):
-    if alumno.eliminar_alumno(id):
+    if alumno_manager.eliminar_alumno(id):
         return jsonify({"success": True})
     else:
         return jsonify({"success": False}), 400
 
+#--------------------------------------------------------------------------------------
+#JUEGOS
 
-# --------------------------------------------------------------------------------------
-# JUEGOS
-
-# GET
+#GET
 @app.route('/api/juegos', methods=['GET'])
 def get_juegos():
-    try:
-        resultado = juegos.obtener_juegos()
-        return jsonify(resultado)
-    except Exception as e:
-        print("Error en get_juegos:", e)
-        return jsonify({"error": "Error al obtener juegos"}), 500
+    juegos = juego_manager.obtener_juegos()
+    return jsonify(juegos)
 
 @app.route('/api/juegos/por-clase/<int:id_clase>', methods=['GET'])
 def obtener_juegos_por_clase(id_clase):
     try:
-        resultado = juegos.obtener_juegos_por_clase(id_clase)
-        return jsonify(resultado)
+        juegos = juego_manager.obtener_juegos_por_clase(id_clase)
+        return jsonify(juegos)
     except Exception as e:
         print("Error al obtener juegos:", e)
         return jsonify({"error": "Error al obtener juegos"}), 500
@@ -243,16 +245,16 @@ def obtener_juegos_por_clase(id_clase):
 @app.route('/api/juegos/por-creador/<creadorjuego>', methods=['GET'])
 def obtener_juegos_por_creador(creadorjuego):
     try:
-        resultado = juegos.obtener_juegos_por_creador(creadorjuego)
-        return jsonify(resultado)
+        juegos = juego_manager.obtener_juegos_por_creador(creadorjuego)
+        return jsonify(juegos)
     except Exception as e:
         print("Error al obtener juegos por creador:", e)
         return jsonify({"error": "Error al obtener juegos por creador"}), 500
-
+    
 @app.route('/api/juegos/puede_jugar/<string:id_alumno>/<int:id_juego>', methods=['GET'])
 def api_puede_jugar(id_alumno, id_juego):
     try:
-        resultado = juegos.puede_jugar(id_alumno, id_juego)
+        resultado = juego_manager.puede_jugar(id_alumno, id_juego)
         return jsonify({
             "puede_jugar": resultado['puede_jugar'],
             "vidas_usadas": resultado['vidas_usadas'],
@@ -262,7 +264,8 @@ def api_puede_jugar(id_alumno, id_juego):
         print("Error en puede_jugar:", e)
         return jsonify({"success": False, "error": str(e)}), 500
 
-# POST
+
+#POST
 @app.route('/api/juegos', methods=['POST'])
 def crear_juego():
     data = request.get_json()
@@ -271,15 +274,16 @@ def crear_juego():
     vida = data.get('vida')
     puntos = data.get('puntos')  
     id_clase = data.get('id_clase')
-    creadorjuego = data.get('creadorjuego')
+    creadorjuego = data.get('creadorjuego')  # <-- ¡AGREGA ESTO!
 
     if nombre and reglas and vida is not None and puntos is not None and id_clase is not None and creadorjuego is not None:
-        if juegos.crear_juego(nombre, reglas, vida, puntos, id_clase, creadorjuego):
+        if juego_manager.crear_juego(nombre, reglas, vida, puntos, id_clase, creadorjuego):
             return jsonify({"success": True})
 
     return jsonify({"success": False, "message": "Error al crear juego"}), 400
 
-# PUT
+
+#PUT
 @app.route('/api/juegos/<int:id>', methods=['PUT'])
 def actualizar_juego(id):
     data = request.get_json()
@@ -288,31 +292,31 @@ def actualizar_juego(id):
     vida = data.get('vida')
     puntos = data.get('puntos')
     id_clase = data.get('id_clase')
-    creadorjuego = data.get('creadorjuego')
+    creadorjuego = data.get('creadorjuego')  # ✅ importante
 
     if not all([nombre, reglas, vida is not None, puntos is not None, id_clase, creadorjuego]):
         return jsonify({"success": False, "message": "Faltan datos"}), 400
 
-    actualizado = juegos.actualizar_juego(id, nombre, reglas, vida, puntos, id_clase, creadorjuego)
+    actualizado = juego_manager.actualizar_juego(id, nombre, reglas, vida, puntos, id_clase, creadorjuego)
     if actualizado:
         return jsonify({"success": True})
     else:
         return jsonify({"success": False, "message": "No se pudo actualizar"}), 500
 
-# DELETE
+#DELETE
 @app.route('/api/juegos/<int:id>', methods=['DELETE'])
 def eliminar_juego(id):
-    if juegos.eliminar_juego(id):
+    if juego_manager.eliminar_juego(id):
         return jsonify({"success": True})
     else:
         return jsonify({"success": False, "message": "Error al eliminar juego"}), 400
-
+    
 # -----------------------------------------------------------------------------------------
 # ESTADO DE JUEGO DE ALUMNO
 
 # POST - Guardar juego actual
 @app.route('/api/estado_juego', methods=['POST'])
-def guardar_estado_juego_endpoint():
+def guardar_estado_juego():
     data = request.get_json()
     id_alumno = data.get('id_alumno')
     id_juego = data.get('id_juego')
@@ -320,46 +324,41 @@ def guardar_estado_juego_endpoint():
     if not id_alumno or not id_juego:
         return jsonify({"success": False, "message": "Faltan datos"}), 400
 
-    conexion = estado_juego.crear_conexion()
-    if estado_juego.guardar_estado_juego(conexion, id_alumno, id_juego):
+    if estado_juego_manager.guardar_estado_juego(id_alumno, id_juego):
         return jsonify({"success": True, "message": "Estado guardado correctamente"})
     else:
         return jsonify({"success": False, "message": "Error al guardar estado"}), 500
 
 
-# POST - Finalizar estado de juego
 @app.route('/api/estado_juego/finalizar', methods=['POST'])
-def finalizar_estado_juego_endpoint():
+def finalizar_estado_juego():
     data = request.get_json()
     id_estado = data.get('id_estado')
 
     if not id_estado:
         return jsonify({"success": False, "message": "Falta id_estado"}), 400
 
-    conexion = estado_juego.crear_conexion()
-    resultado = estado_juego.finalizar_juego_por_id(conexion, id_estado)
+    resultado = estado_juego_manager.finalizar_juego_por_id(id_estado)
     if resultado:
         return jsonify({"success": True, "message": "Juego finalizado correctamente"})
     else:
         return jsonify({"success": False, "message": "No se pudo finalizar el juego"}), 500
 
 
+
 # GET - Obtener juego actual por alumno
 @app.route('/api/estado_juego/<string:id_alumno>', methods=['GET'])
-def obtener_estado_juego_endpoint(id_alumno):
-    conexion = estado_juego.crear_conexion()
-    estado_actual = estado_juego.obtener_estado_juego(conexion, id_alumno)
-    if estado_actual:
-        return jsonify({"success": True, "estado": estado_actual})
+def obtener_estado_juego(id_alumno):
+    estado = estado_juego_manager.obtener_estado_juego(id_alumno)
+    if estado:
+        return jsonify({"success": True, "estado": estado})
     else:
         return jsonify({"success": False, "message": "El alumno no está jugando ningún juego"}), 404
+    
 
-
-# GET - Obtener historial de juegos por alumno
 @app.route('/api/historial_juegos/<string:id_alumno>', methods=['GET'])
-def obtener_historial_juegos_endpoint(id_alumno):
-    conexion = estado_juego.crear_conexion()
-    historial = estado_juego.obtener_historial_juegos(conexion, id_alumno)
+def obtener_historial_juegos(id_alumno):
+    historial = estado_juego_manager.obtener_historial_juegos(id_alumno)
     if historial is not None:
         return jsonify({"success": True, "historial": historial})
     else:

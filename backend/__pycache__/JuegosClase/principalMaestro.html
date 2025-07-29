@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maestro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="CSS/principalMestro.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Panel Maestro</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuMaestro" aria-controls="menuMaestro" aria-expanded="false" aria-label="Mostrar/Ocultar navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="menuMaestro">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="principalMaestro.html">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Alumnos.html">Alumnos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="clases.html">Clases</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="Juegos.html">Juegos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="GanadoresMestro.html">Ganadores</a></li>
+                    <li class="nav-item"><a class="nav-link" href="historial.html">Historial</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="btnCerrarSesion">Salir</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+    <h1 class="text-center mb-4">Bienvenido</h1>
+    <div class="row">
+        <!-- Leaderboard -->
+        <div class="col-md-6 mb-5">
+            <h4 class="text-center">Top 5 Alumnos</h4>
+            <div id="leaderboard" class="leaderboard"></div>
+        </div>
+    </div>
+
+    <!-- Tabla por clase -->
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="selectClaseTabla" class="form-label">Selecciona una clase para ver sus alumnos:</label>
+            <select id="selectClaseTabla" class="form-select">
+                <option value="">-- Selecciona una clase --</option>
+            </select>
+        </div>
+        <div class="col-12">
+            <table class="table table-bordered table-hover">
+                <thead class="table-primary">
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Puntos</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaAlumnosClase">
+                    <!-- Aquí se insertarán los alumnos -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="JS/principalMaestro.js"></script>
+<script src="JS/cerarsesion.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
